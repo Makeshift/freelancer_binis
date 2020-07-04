@@ -21,6 +21,7 @@ cargo = 2759792129, 1, , , 0
 cargo = 2759792129, 1, , , 0
 cargo = 2759792129, 1, , , 0
 equip = 2851656000, HpThruster01, 1
+28516561400
 `.trim();
 
 
@@ -86,12 +87,13 @@ const replaceManyStr = (obj, sentence) => obj.reduce((f, s) => `${f}`.replace(ne
 async function go() {
     let db = (await fs.readFile("NICKNAME_HASHES.txt")).toString().split("\n")
     const db_lookup = {};
-    for (let i = 8; i < db.length-1; i += 3) {
-        let item_id = db[i+2].split("\t")[2].split("\r")[0]
-        db_lookup[item_id] = {
-            name: db[i],
-            //friendly_name: replaceManyStr(SYSTEM_NAMES, db[i]),
-            from_path: db[i+1]
+    for (let i = 8; i < db.length-1; i++) {
+        let splitItem = db[i].split(/\s+/);
+        db_lookup[splitItem[3]] = {
+            name: splitItem[0],
+            from_path: splitItem[1],
+            hex: splitItem[2],
+            id: splitItem[3]
         }
     }
     db = null;
@@ -102,8 +104,11 @@ async function go() {
     let matches = SEARCH_STRING.matchAll(regexp);
     for (const match of matches) {
         let item = db_lookup[Number(match[0])];
-
-        console.log(`${match[0]}: ${item.name}`);
+        if (item) {
+            console.log(JSON.stringify(item));
+        } else {
+            console.log(`${Number(match[0])} not found in DB.`)
+        }
     }
 }
 
